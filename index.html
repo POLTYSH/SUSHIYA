@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SUSHIYA — Суші та доставка</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+
+<body>
+
+    <header class="header">
+
+        <div class="logo">
+            SUSHIYA
+        </div>
+
+        <nav class="navigation">
+            <a href="#">Головна</a>
+         <a href="menu.html">Меню</a>
+            <a href="#">Про нас</a>
+            <a href="#">Контакти</a>
+        </nav>
+
+        <button class="cart-button">
+            🛒 Кошик
+        </button>
+
+    </header>
+
+    <main>
+
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <p class="hero-small-title">
+                    SUSHI • WOK • DELIVERY
+                </p>
+
+                <h1>
+                    Смак, який<br>
+                    хочеться повторити.
+                </h1>
+
+                <p class="hero-description">
+                    Свіжі суші, роли та вок,
+                    приготовані з любов'ю.
+                </p>
+
+        <button class="hero-button" onclick="window.location.href='menu.html'">
+    Переглянути меню
+</button>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+<script>
+const hero = document.querySelector(".hero");
+
+hero.addEventListener("mousemove", (e) => {
+    const rect = hero.getBoundingClientRect();
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    hero.style.setProperty("--mouse-x", `${x}px`);
+    hero.style.setProperty("--mouse-y", `${y}px`);
+});
+</script>
+
+</body>
+</html>
