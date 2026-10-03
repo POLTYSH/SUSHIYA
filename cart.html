@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SUSHIYA — Кошик</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="header">
+
+        <div class="logo">
+            SUSHIYA
+        </div>
+
+        <nav class="navigation">
+            <a href="index.html">Головна</a>
+            <a href="reviews.html">Відгуки</a>
+            <a href="about.html">Про нас</a>
+            <a href="contact.html">Контакти</a>
+        </nav>
+
+        <button class="cart-button">
+            🛒 Кошик
+        </button>
+
+    </header>
+
+
+    <main>
+
+        <section class="cart-page">
+
+            <div class="section-title">
+                <p>ВАШЕ ЗАМОВЛЕННЯ</p>
+                <h1>Кошик</h1>
+            </div>
+
+
+            <div class="cart-layout">
+
+                <div id="cartItems" class="cart-items"></div>
+
+
+                <div class="cart-summary">
+
+                    <h2>Ваше замовлення</h2>
+
+                    <div class="summary-row">
+                        <span>Кількість товарів</span>
+                        <strong id="cartCount">0</strong>
+                    </div>
+
+                    <div class="summary-row total">
+                        <span>Разом</span>
+                        <strong id="cartTotal">0 грн</strong>
+                    </div>
+
+                    <button
+                        id="checkoutButton"
+                        class="checkout-button">
+                        💳 Оплатити
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        let cart =
+            JSON.parse(localStorage.getItem("sushiyaCart")) || [];
+
+
+        const cartItems =
+            document.querySelector("#cartItems");
+
+        const cartCount =
+            document.querySelector("#cartCount");
+
+        const cartTotal =
+            document.querySelector("#cartTotal");
+
+
+        function saveCart() {
+
+            localStorage.setItem(
+                "sushiyaCart",
+                JSON.stringify(cart)
+            );
+
+        }
+
+
+        function renderCart() {
+
+            cartItems.innerHTML = "";
+
+            let total = 0;
+            let count = 0;
+
+
+            if (cart.length === 0) {
+
+                cartItems.innerHTML = `
+
+                    <div class="empty-cart">
+
+                        <div class="empty-cart-icon">
+                            🛒
+                        </div>
+
+                        <h2>Кошик порожній</h2>
+
+                        <p>
+                            Додайте щось смачненьке
+                            з нашого меню 🍣
+                        </p>
+
+                        <a href="menu.html">
+                            Перейти до меню
+                        </a>
+
+                    </div>
+
+                `;
+
+                cartCount.textContent = "0";
+                cartTotal.textContent = "0 грн";
+
+                return;
+            }
+
+
+            cart.forEach((item, index) => {
+
+                total += item.price * item.quantity;
+
+                count += item.quantity;
+
+
+                const card =
+                    document.createElement("div");
+
+
+                card.className = "cart-item";
+
+
+                card.innerHTML = `
+
+                    <img
+                        src="${item.image}"
+                        alt="${item.name}"
+                    >
+
+
+                    <div class="cart-item-info">
+
+                        <h3>${item.name}</h3>
+
+                        <p>${item.price} грн</p>
+
+
+                        <div class="quantity">
+
+                            <button
+                                onclick="changeQuantity(${index}, -1)">
+                                −
+                            </button>
+
+                            <span>
+                                ${item.quantity}
+                            </span>
+
+                            <button
+                                onclick="changeQuantity(${index}, 1)">
+                                +
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        class="remove-item"
+                        onclick="removeItem(${index})">
+                        🗑️
+                    </button>
+
+                `;
+
+
+                cartItems.appendChild(card);
+
+            });
+
+
+            cartCount.textContent = count;
+
+            cartTotal.textContent =
+                `${total} грн`;
+
+        }
+
+
+        function changeQuantity(index, amount) {
+
+            cart[index].quantity += amount;
+
+
+            if (cart[index].quantity <= 0) {
+
+                cart.splice(index, 1);
+
+            }
+
+
+            saveCart();
+
+            renderCart();
+
+        }
+
+
+        function removeItem(index) {
+
+            cart.splice(index, 1);
+
+            saveCart();
+
+            renderCart();
+
+        }
+
+
+        document
+    .querySelector("#checkoutButton")
+    .addEventListener("click", () => {
+
+        if (cart.length === 0) {
+
+            showPaymentModal(
+                "Кошик порожній",
+                "Спочатку додайте щось смачненьке 🍣",
+                false
+            );
+
+            return;
+        }
+
+
+        const total = cart.reduce(
+            (sum, item) =>
+                sum + item.price * item.quantity,
+            0
+        );
+
+
+        showPaymentModal(
+    "Замовлення прийнято!",
+    `Дякуємо за замовлення на суму ${total} грн.<br>
+    Це демонстраційна оплата — реальне списання коштів не виконується.`,
+    true
+);
+
+    });
+
+function showPaymentModal(title, message, success) {
+
+    const oldModal =
+        document.querySelector(".payment-modal");
+
+    if (oldModal) {
+        oldModal.remove();
+    }
+
+
+    const modal =
+        document.createElement("div");
+
+    modal.className = "payment-modal";
+
+
+    modal.innerHTML = `
+
+        <div class="payment-overlay"></div>
+
+        <div class="payment-window">
+
+            <button
+                class="payment-close"
+                onclick="closePaymentModal()">
+                ×
+            </button>
+
+
+            <div class="payment-icon ${success ? "success" : "error"}">
+
+                ${success ? "✓" : "!"}
+
+            </div>
+
+
+            <h2>
+                ${title}
+            </h2>
+
+
+            <p>
+                ${message}
+            </p>
+
+
+           <button
+    class="payment-ok"
+    onclick="closePaymentModal(true)">
+
+    Готово
+
+</button>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(modal);
+
+
+    setTimeout(() => {
+
+        modal.classList.add("show");
+
+    }, 10);
+
+}
+
+
+function closePaymentModal(clearCart = false) {
+
+    const modal =
+        document.querySelector(".payment-modal");
+
+    if (!modal) return;
+
+
+    modal.classList.remove("show");
+
+
+    setTimeout(() => {
+
+        modal.remove();
+
+
+        if (clearCart) {
+
+            cart = [];
+
+            saveCart();
+
+            renderCart();
+
+        }
+
+    }, 300);
+
+}
+
+
+        renderCart();
+
+    </script>
+
+</body>
+
+</html>

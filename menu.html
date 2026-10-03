@@ -20,14 +20,15 @@
 
         <nav class="navigation">
             <a href="index.html">Головна</a>
-           <a href="index.html#reviews">Відгуки</a>
-            <a href="#">Про нас</a>
-            <a href="#">Контакти</a>
+           <a href="reviews.html">Відгуки</a>
+            <a href="about.html">Про нас</a>
+           <a href="contact.html">Контакти</a>
         </nav>
 
-        <button class="cart-button">
-            🛒 Кошик
-        </button>
+   <button class="cart-button" onclick="window.location.href='cart.html'">
+    🛒 Кошик
+    <span class="cart-badge" id="cartBadge">0</span>
+</button>
 
     </header>
 
@@ -58,10 +59,12 @@
                             Лосось, вершковий сир, огірок
                         </p>
 
-                        <div class="menu-bottom">
-                            <strong>289 грн</strong>
-                            <button>+</button>
-                        </div>
+                       <div class="menu-bottom">
+    <strong>289 грн</strong>
+    <button onclick="addToCart('Philadelphia', 289, 'images/philadelphia.png')">
+        +
+    </button>
+</div>
 
                     </div>
 
@@ -83,9 +86,11 @@
                         </p>
 
                         <div class="menu-bottom">
-                            <strong>249 грн</strong>
-                            <button>+</button>
-                        </div>
+    <strong>249 грн</strong>
+    <button onclick="addToCart('California', 249, 'images/california.png')">
+        +
+    </button>
+</div>
 
                     </div>
 
@@ -107,9 +112,11 @@
                         </p>
 
                         <div class="menu-bottom">
-                            <strong>329 грн</strong>
-                            <button>+</button>
-                        </div>
+    <strong>329 грн</strong>
+    <button onclick="addToCart('Dragon', 329, 'images/dragon.png')">
+        +
+    </button>
+</div>
 
                     </div>
 
@@ -130,10 +137,12 @@
                             Лосось, рис, норі, кунжут
                         </p>
 
-                        <div class="menu-bottom">
-                            <strong>199 грн</strong>
-                            <button>+</button>
-                        </div>
+                       <div class="menu-bottom">
+    <strong>199 грн</strong>
+    <button onclick="addToCart('Salmon Maki', 199, 'images/salmon-maki.png')">
+        +
+    </button>
+</div>
 
                     </div>
 
@@ -154,10 +163,12 @@
                             Креветка, сир, хрустка паніровка
                         </p>
 
-                        <div class="menu-bottom">
-                            <strong>269 грн</strong>
-                            <button>+</button>
-                        </div>
+                       <div class="menu-bottom">
+    <strong>269 грн</strong>
+    <button onclick="addToCart('Crunchy', 269, 'images/crunchy.png')">
+        +
+    </button>
+</div>
 
                     </div>
 
@@ -179,9 +190,11 @@
                         </p>
 
                         <div class="menu-bottom">
-                            <strong>499 грн</strong>
-                            <button>+</button>
-                        </div>
+    <strong>499 грн</strong>
+    <button onclick="addToCart('Tokyo Set', 499, 'images/tokyo-set.png')">
+        +
+    </button>
+</div>
 
                     </div>
 
@@ -192,6 +205,108 @@
         </section>
 
     </main>
+
+<script>
+
+    function updateCartBadge() {
+
+    const cart =
+        JSON.parse(localStorage.getItem("sushiyaCart")) || [];
+
+    const badge =
+        document.querySelector("#cartBadge");
+
+    if (!badge) return;
+
+    const count = cart.reduce(
+        (total, item) => total + item.quantity,
+        0
+    );
+
+    badge.textContent = count;
+
+    if (count === 0) {
+        badge.style.display = "none";
+    } else {
+        badge.style.display = "flex";
+    }
+}
+
+updateCartBadge();
+
+    function showCartNotification(message) {
+
+        const notification = document.createElement("div");
+
+        notification.className = "cart-notification";
+
+        notification.innerHTML = `
+            <div class="notification-icon">✓</div>
+
+            <div>
+                <strong>Додано до кошика</strong>
+                <p>${message}</p>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+
+        setTimeout(() => {
+            notification.classList.add("hide");
+        }, 2200);
+
+
+        setTimeout(() => {
+            notification.remove();
+        }, 2700);
+
+    }
+
+
+    function addToCart(name, price, image) {
+
+        let cart =
+            JSON.parse(localStorage.getItem("sushiyaCart")) || [];
+
+
+        const existingItem =
+            cart.find(item => item.name === name);
+
+
+        if (existingItem) {
+
+            existingItem.quantity += 1;
+
+        } else {
+
+            cart.push({
+
+                name: name,
+                price: price,
+                image: image,
+                quantity: 1
+
+            });
+
+        }
+
+
+        localStorage.setItem(
+            "sushiyaCart",
+            JSON.stringify(cart)
+        );
+
+
+        showCartNotification(
+            `${name} додано до кошика! 🛒`
+        );
+
+        updateCartBadge();
+
+    }
+
+</script>
 
 </body>
 
