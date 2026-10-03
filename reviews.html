@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUSHIYA — Відгуки</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+    <div class="logo">SUSHIYA</div>
+
+    <nav class="navigation">
+        <a href="index.html">Головна</a>
+        <a href="reviews.html">Відгуки</a>
+        <a href="#">Про нас</a>
+        <a href="#">Контакти</a>
+    </nav>
+
+    <button class="cart-button">🛒 Кошик</button>
+</header>
+
+<main>
+
+    <section class="reviews-section" id="reviews">
+
+        <div class="section-title">
+            <p>ВІДГУКИ КЛІЄНТІВ</p>
+            <h2>Що кажуть про SUSHIYA</h2>
+        </div>
+
+        <div class="review-form">
+            <h3>Залишити відгук</h3>
+
+            <input id="reviewName" type="text" placeholder="Ваше ім'я">
+
+            <div class="stars" id="stars">
+                <button type="button" data-rating="1">★</button>
+                <button type="button" data-rating="2">★</button>
+                <button type="button" data-rating="3">★</button>
+                <button type="button" data-rating="4">★</button>
+                <button type="button" data-rating="5">★</button>
+            </div>
+
+            <textarea id="reviewText" placeholder="Напишіть свій відгук..."></textarea>
+
+            <button class="review-submit" id="reviewSubmit">
+                Опублікувати відгук
+            </button>
+        </div>
+
+        <div class="reviews-list" id="reviewsList"></div>
+
+    </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    const SUPABASE_URL = "https://wpopqsclswdcjotcchfy.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_8W6B6rz-Iem_5PQoJO59JQ_JZeGLbgN";
+
+    const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+    let selectedRating = 0;
+
+    const starButtons = document.querySelectorAll("#stars button");
+
+    starButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            selectedRating = Number(button.dataset.rating);
+
+            starButtons.forEach(star => {
+                star.classList.toggle(
+                    "active",
+                    Number(star.dataset.rating) <= selectedRating
+                );
+            });
+        });
+    });
+
+    async function loadReviews() {
+        const { data, error } = await supabaseClient
+            .from("reviews")
+            .select("name, rating, review, created_at")
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            console.error("Помилка завантаження відгуків:", error);
+            return;
+        }
+
+        const reviewsList = document.querySelector("#reviewsList");
+        reviewsList.innerHTML = "";
+
+        data.forEach(item => {
+            const card = document.createElement("div");
+            card.className = "review-card";
+
+            const name = document.createElement("h4");
+            name.textContent = item.name;
+
+            const stars = document.createElement("div");
+            stars.className = "review-stars";
+            stars.textContent = "★".repeat(item.rating);
+
+            const text = document.createElement("p");
+            text.textContent = item.review;
+
+            card.appendChild(name);
+            card.appendChild(stars);
+            card.appendChild(text);
+
+            reviewsList.appendChild(card);
+        });
+    }
+
+    document.querySelector("#reviewSubmit").addEventListener("click", async () => {
+        const name = document.querySelector("#reviewName").value.trim();
+        const review = document.querySelector("#reviewText").value.trim();
+
+        if (!name || !review || selectedRating === 0) {
+            alert("Заповни ім'я, відгук і постав оцінку ⭐");
+            return;
+        }
+
+        const { error } = await supabaseClient
+            .from("reviews")
+            .insert({
+                name: name,
+                rating: selectedRating,
+                review: review
+            });
+
+        if (error) {
+            console.error("Помилка:", error);
+            alert("Не вдалося опублікувати відгук 😕");
+            return;
+        }
+
+        document.querySelector("#reviewName").value = "";
+        document.querySelector("#reviewText").value = "";
+        selectedRating = 0;
+
+        starButtons.forEach(star => {
+            star.classList.remove("active");
+        });
+
+        await loadReviews();
+
+        alert("Відгук опубліковано! ❤️");
+    });
+
+    loadReviews();
+</script>
+
+</body>
+</html>
